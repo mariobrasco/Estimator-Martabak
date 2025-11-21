@@ -28,6 +28,8 @@
 
     state.n = n; state.m = m; state.ingredientNames = ingNames.slice(0,m);
 
+    const units = ['gr','kg','ml','l','pcs'];
+
     let html = '<div class="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-6 shadow-xl border border-gray-200">';
     html += '<div class="flex items-center gap-3 mb-6">';
     html += '<div class="w-10 h-10 bg-linear-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-md">';
@@ -39,7 +41,9 @@
     html += '<th class="px-4 py-4 text-left font-bold text-indigo-700 border-b-2 border-gray-200">Produk</th>';
     for(let j=0;j<m;j++){
       const b = state.ingredientNames[j] || ('Bahan '+(j+1));
-      html += `<th class="px-4 py-4 text-left font-bold text-purple-700 border-b-2 border-gray-200">${b}</th>`;
+      let opts = '';
+      for(const u of units) opts += `<option value="${u}">${u}</option>`;
+      html += `<th class="px-4 py-4 text-left font-bold text-purple-700 border-b-2 border-gray-200"><div class="flex items-center gap-2"><span class="font-medium">${b}</span><select id="unit_${j}" class="unit-select px-2 py-1 text-sm border rounded-md bg-white">${opts}</select></div></th>`;
     }
     html += '</tr></thead><tbody class="bg-white">';
     for(let i=0;i<n;i++){
@@ -64,7 +68,9 @@
     }
     html += '</tr></thead><tbody><tr class="hover:bg-gray-50 transition-colors">';
     for(let j=0;j<m;j++){
-      html += `<td class="px-4 py-3"><input id="stok_${j}" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="any" value="0"></td>`;
+      let opts = '';
+      for(const u of units) opts += `<option value="${u}">${u}</option>`;
+      html += `<td class="px-4 py-3"><div class="flex gap-2"><input id="stok_${j}" class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="any" value="0"><select id="unit_stock_${j}" class="w-24 px-2 py-1 text-sm border rounded-md bg-white">${opts}</select></div></td>`;
     }
     html += '</tr></tbody></table></div></div></div>';
 
@@ -88,9 +94,14 @@
       el.value = v;
     });
     const defaults = [2000, 800, 20];
+    const unitDefaults = ['gr','gr','pcs'];
     for(let j=0;j<state.m;j++){
       const s = $(`stok_${j}`);
       if (s) s.value = defaults[j] || 0;
+      const usel = $(`unit_${j}`);
+      if (usel) usel.value = unitDefaults[j] || 'gr';
+      const uselStock = $(`unit_stock_${j}`);
+      if (uselStock) uselStock.value = unitDefaults[j] || 'gr';
     }
     clearTerminal();
     log('✓ Contoh data berhasil diisi!');
@@ -120,9 +131,15 @@
     const compMatrix = Array.from({length:m}, (_,r)=> Array.from({length:n}, (_,c)=> compRowsByProduct[c][r] ));
     state.compMatrix = compMatrix;
     state.stock = [];
+    state.units = [];
+    state.stockUnits = [];
     for(let j=0;j<m;j++){
       const v = parseFloat($(`stok_${j}`).value) || 0;
       state.stock.push(v);
+      const u = (document.getElementById(`unit_${j}`) && document.getElementById(`unit_${j}`).value) || '';
+      const us = (document.getElementById(`unit_stock_${j}`) && document.getElementById(`unit_stock_${j}`).value) || u || '';
+      state.units.push(u);
+      state.stockUnits.push(us);
     }
   }
 
@@ -279,6 +296,8 @@
       csv += [name].concat(comps).join(',') + '\n';
     }
     csv += 'STOK,' + state.stock.join(',') + '\n';
+    if (state.units && state.units.length) csv += 'UNITS,' + state.units.join(',') + '\n';
+    if (state.stockUnits && state.stockUnits.length) csv += 'STOCK_UNITS,' + state.stockUnits.join(',') + '\n';
     const blob = new Blob([csv], {type:'text/csv'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'input_martabak.csv';
