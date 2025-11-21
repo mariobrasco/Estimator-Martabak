@@ -28,6 +28,8 @@
 
     state.n = n; state.m = m; state.ingredientNames = ingNames.slice(0,m);
 
+    const units = ['gr','kg','ml','l','pcs'];
+
     let html = '<div class="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-6 shadow-xl border border-gray-200">';
     html += '<div class="flex items-center gap-3 mb-6">';
     html += '<div class="w-10 h-10 bg-linear-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-md">';
@@ -39,14 +41,16 @@
     html += '<th class="px-4 py-4 text-left font-bold text-indigo-700 border-b-2 border-gray-200">Produk</th>';
     for(let j=0;j<m;j++){
       const b = state.ingredientNames[j] || ('Bahan '+(j+1));
-      html += `<th class="px-4 py-4 text-left font-bold text-purple-700 border-b-2 border-gray-200">${b}</th>`;
+      let opts = '';
+      for(const u of units) opts += `<option value="${u}">${u}</option>`;
+      html += `<th class="px-4 py-4 text-left font-bold text-purple-700 border-b-2 border-gray-200"><div class="flex items-center gap-2"><span class="font-medium">${b}</span><select id="unit_${j}" class="unit-select px-2 py-1 text-sm border rounded-md bg-white">${opts}</select></div></th>`;
     }
     html += '</tr></thead><tbody class="bg-white">';
     for(let i=0;i<n;i++){
       html += '<tr class="hover:bg-gray-50 transition-colors">';
-      html += `<td class="px-4 py-3 border-b border-gray-100"><input class="pname w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none font-medium" data-i="${i}" type="text" value="Martabak ${i+1}"></td>`;
+      html += `<td class="px-4 py-3 border-b border-gray-100"><input class="pname w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none font-medium" data-i="${i}" type="text" placeholder="Nama Produk ${i+1}"></td>`;
       for(let j=0;j<m;j++){
-        html += `<td class="px-4 py-3 border-b border-gray-100"><input class="comp w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none font-medium" data-i="${i}" data-j="${j}" type="number" min="0" step="any" value="0"></td>`;
+        html += `<td class="px-4 py-3 border-b border-gray-100"><input class="comp w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none font-medium" data-i="${i}" data-j="${j}" type="number" min="0" step="any"></td>`;
       }
       html += '</tr>';
     }
@@ -64,7 +68,9 @@
     }
     html += '</tr></thead><tbody><tr class="hover:bg-gray-50 transition-colors">';
     for(let j=0;j<m;j++){
-      html += `<td class="px-4 py-3"><input id="stok_${j}" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="any" value="0"></td>`;
+      let opts = '';
+      for(const u of units) opts += `<option value="${u}">${u}</option>`;
+      html += `<td class="px-4 py-3"><div class="flex gap-2"><input id="stok_${j}" class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="any"><select id="unit_stock_${j}" class="w-24 px-2 py-1 text-sm border rounded-md bg-white">${opts}</select></div></td>`;
     }
     html += '</tr></tbody></table></div></div></div>';
 
@@ -80,22 +86,43 @@
 
   function fillExample(){
     buildTables();
-    document.querySelectorAll('.pname').forEach((el, idx)=> el.value = ['Martabak Manis','Martabak Telur','Martabak Mini'][idx] || `Martabak ${idx+1}`);
-    const sample = [[300, 100, 2],[250, 50, 3],[100, 30, 1]];
+    const defaultNames = ['Martabak Manis','Martabak Telur','Martabak Mini'];
+    document.querySelectorAll('.pname').forEach((el, idx)=> el.value = defaultNames[idx] || `Martabak ${idx+1}`);
+
+    // Generate random comps between 1 and 1000 for each product-ingredient cell
+    const n = state.n || 0, m = state.m || 0;
+    const compVals = Array.from({length:n}, ()=> Array(m).fill(0));
     document.querySelectorAll('.comp').forEach(el=>{
       const i = parseInt(el.dataset.i), j = parseInt(el.dataset.j);
-      const v = (sample[i] && sample[i][j] !== undefined) ? sample[i][j] : 0;
+      const v = Math.floor(Math.random()*1000) + 1; // 1..1000
       el.value = v;
+      compVals[i][j] = v;
     });
-    const defaults = [2000, 800, 20];
-    for(let j=0;j<state.m;j++){
+
+    // For each ingredient, compute a logical stok based on total needed across products
+    const unitList = ['gr','kg','ml','l','pcs'];
+    for(let j=0;j<m;j++){
+      // total needed if produce 1 unit of each product
+      let totalNeeded = 0;
+      for(let i=0;i<n;i++) totalNeeded += (compVals[i][j] || 0);
+      // choose multiplier 1..5 so stock is a multiple of totalNeeded (makes sense)
+      const mult = Math.floor(Math.random()*5) + 1;
+      const stokVal = Math.max(1, Math.floor(totalNeeded * mult));
       const s = $(`stok_${j}`);
-      if (s) s.value = defaults[j] || 0;
+      if (s) s.value = stokVal;
+
+      // pick a random unit for both header and stock select (keeps consistent)
+      const randUnit = unitList[Math.floor(Math.random()*unitList.length)];
+      const usel = $(`unit_${j}`);
+      if (usel) usel.value = randUnit;
+      const uselStock = $(`unit_stock_${j}`);
+      if (uselStock) uselStock.value = randUnit;
     }
+
     clearTerminal();
-    log('✓ Contoh data berhasil diisi!');
-    log('→ Data: Martabak Manis, Telur, Mini dengan stok standar');
-    status.innerHTML = '<span class="text-blue-600 font-semibold">✓ Contoh terisi</span>';
+    log('✓ Contoh data acak berhasil diisi (komposisi: 1–1000).');
+    log('→ Stok diatur berdasar total kebutuhan × faktor acak 1–5.');
+    status.innerHTML = '<span class="text-blue-600 font-semibold">✓ Contoh acak terisi</span>';
     status.className = 'px-4 py-3 bg-blue-50 rounded-xl text-blue-600 font-medium border-2 border-blue-200';
   }
 
@@ -120,9 +147,15 @@
     const compMatrix = Array.from({length:m}, (_,r)=> Array.from({length:n}, (_,c)=> compRowsByProduct[c][r] ));
     state.compMatrix = compMatrix;
     state.stock = [];
+    state.units = [];
+    state.stockUnits = [];
     for(let j=0;j<m;j++){
       const v = parseFloat($(`stok_${j}`).value) || 0;
       state.stock.push(v);
+      const u = (document.getElementById(`unit_${j}`) && document.getElementById(`unit_${j}`).value) || '';
+      const us = (document.getElementById(`unit_stock_${j}`) && document.getElementById(`unit_stock_${j}`).value) || u || '';
+      state.units.push(u);
+      state.stockUnits.push(us);
     }
   }
 
@@ -279,6 +312,8 @@
       csv += [name].concat(comps).join(',') + '\n';
     }
     csv += 'STOK,' + state.stock.join(',') + '\n';
+    if (state.units && state.units.length) csv += 'UNITS,' + state.units.join(',') + '\n';
+    if (state.stockUnits && state.stockUnits.length) csv += 'STOCK_UNITS,' + state.stockUnits.join(',') + '\n';
     const blob = new Blob([csv], {type:'text/csv'});
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a'); a.href = url; a.download = 'input_martabak.csv';
