@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Estimator Produksi Martabak — SPL & OBE</title>
+  <!-- <link rel="stylesheet" href="style.css"> -->
+  <link rel="stylesheet" href="output.css">
+</head>
+<body class="bg-linear-to-br from-indigo-50 via-purple-50 to-pink-50 min-h-screen font-sans">
+   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12">
+    
+    <!-- Header -->
+    <header class="text-center mb-10">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-linear-to-br from-indigo-500 to-purple-600 rounded-3xl shadow-xl mb-6">
+        <svg class="w-10 h-10 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"></path>
+        </svg>
+      </div>
+      <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold bg-linear-to-br from-indigo-600 via-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+        Estimator Produksi Martabak
+      </h1>
+      <p class="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto">
+        Sistem Persamaan Linear dengan Metode <span class="font-semibold text-indigo-600">Gauss-Jordan (OBE)</span>
+      </p>
+      <div class="mt-6 inline-flex items-center gap-2 px-5 py-2 bg-white rounded-full shadow-md border border-gray-200">
+        <span class="flex h-3 w-3">
+          <span class="animate-ping absolute inline-flex h-3 w-3 rounded-full bg-green-400 opacity-75"></span>
+          <span class="relative inline-flex rounded-full h-3 w-3 bg-green-500"></span>
+        </span>
+        <span class="text-sm font-medium text-gray-700">100% Browser Based</span>
+      </div>
+    </header>
+
+    <!-- Configuration Card -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-6 shadow-xl border border-gray-200">
+      <div class="flex items-center gap-3 mb-6">
+        <div class="w-12 h-12 bg-linear-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center shadow-lg">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path>
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-bold text-gray-800">Konfigurasi Sistem</h2>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-6 mb-6">
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Jenis Martabak (n)</label>
+          <input id="nProducts" type="number" min="1" value="3" 
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all duration-200 font-medium">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Jumlah Bahan (m)</label>
+          <input id="nIngredients" type="number" min="1" value="3"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all duration-200 font-medium">
+        </div>
+        <div>
+          <label class="block text-sm font-semibold text-gray-700 mb-2">Nama Bahan (pisah koma)</label>
+          <input id="ingredientNames" type="text" value="Tepung,Gula,Telur"
+            class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-indigo-500 focus:ring-4 focus:ring-indigo-100 outline-none transition-all duration-200 font-medium">
+        </div>
+      </div>
+
+      <div class="flex flex-wrap gap-3">
+        <button id="buildBtn" class="px-6 py-3 bg-linear-to-br from-indigo-600 to-purple-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+          </svg>
+          Buat Form Input
+        </button>
+        <button id="fillExample" class="px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 hover:border-indigo-400 transition-all duration-200 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+          </svg>
+          Isi Contoh
+        </button>
+        <button id="resetBtn" class="px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-red-50 hover:border-red-400 hover:text-red-600 transition-all duration-200 flex items-center gap-2">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+          </svg>
+          Reset
+        </button>
+      </div>
+    </div>
+
+    <!-- Input Area -->
+    <div id="inputArea"></div>
+
+    <!-- Actions -->
+    <div id="actions" class="hidden bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-6 shadow-xl border border-gray-200">
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-linear-to-br from-green-500 to-emerald-600 rounded-xl flex items-center justify-center shadow-md">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Aksi</h3>
+          </div>
+          <div class="flex flex-wrap gap-3">
+            <button id="solveBtn" class="px-6 py-3 bg-linear-to-br from-green-600 to-emerald-600 text-white rounded-xl font-semibold shadow-lg hover:shadow-xl hover:scale-105 transition-all duration-200 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"></path>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+              Jalankan OBE
+            </button>
+            <button id="showMatrixBtn" class="px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 hover:border-indigo-400 transition-all duration-200 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z"></path>
+              </svg>
+              Tampilkan Matriks
+            </button>
+            <button id="downloadCSV" class="px-6 py-3 bg-white border-2 border-gray-300 text-gray-700 rounded-xl font-semibold hover:bg-gray-50 hover:border-indigo-400 transition-all duration-200 flex items-center gap-2">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              Download CSV
+            </button>
+          </div>
+        </div>
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="w-10 h-10 bg-linear-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-md">
+              <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-gray-800">Status & Info</h3>
+          </div>
+          <div id="status" class="px-4 py-3 bg-gray-100 rounded-xl text-gray-600 mb-3 font-medium border border-gray-200">
+            Belum dijalankan
+          </div>
+          <div class="px-4 py-3 bg-amber-50 border-2 border-amber-200 rounded-xl text-sm text-amber-800 flex items-start gap-2">
+            <svg class="w-5 h-5 mt-0.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+            </svg>
+            <span>Aplikasi membutuhkan <strong>m = n</strong> (jumlah bahan = jumlah produk)</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Terminal -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-6 shadow-xl border border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-linear-to-br from-gray-700 to-gray-900 rounded-xl flex items-center justify-center shadow-md">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800">Terminal OBE — Langkah-langkah</h2>
+      </div>
+      <div class="bg-gray-900 rounded-2xl p-6 shadow-inner">
+        <pre id="terminal" class="text-green-400 text-sm font-mono overflow-auto max-h-96 leading-relaxed">Tekan "Buat Form Input" dulu...</pre>
+      </div>
+    </div>
+
+    <!-- Hasil Solusi -->
+    <div class="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-6 shadow-xl border border-gray-200">
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-10 h-10 bg-linear-to-br from-purple-500 to-pink-600 rounded-xl flex items-center justify-center shadow-md">
+          <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z"></path>
+          </svg>
+        </div>
+        <h2 class="text-2xl font-bold text-gray-800">Hasil Solusi</h2>
+      </div>
+      <div id="resultArea" class="bg-gray-50 rounded-2xl p-6 text-gray-600 min-h-[120px] border-2 border-gray-200">
+        Belum ada hasil.
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="text-center text-gray-500 text-sm py-6">
+      <div class="flex items-center justify-center gap-2 mb-2">
+        <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+          <path fill-rule="evenodd" d="M2.166 4.999A11.954 11.954 0 0010 1.944 11.954 11.954 0 0017.834 5c.11.65.166 1.32.166 2.001 0 5.225-3.34 9.67-8 11.317C5.34 16.67 2 12.225 2 7c0-.682.057-1.35.166-2.001zm11.541 3.708a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+        </svg>
+        <span class="font-medium">Berjalan sepenuhnya di browser • Data tidak dikirim ke server</span>
+      </div>
+      <p class="text-xs">© 2025 Estimator Produksi Martabak, Dibuat oleh Kelompok 1</p>
+    </footer>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

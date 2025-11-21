@@ -1,0 +1,12 @@
+{
+  "name": "projek-matdas",
+  "version": "1.0.0",
+  "dependencies": {
+    "@tailwindcss/cli": "^4.1.17",
+    "tailwindcss": "^4.1.17"
+  },
+  "scripts": {
+    "dev": "tailwindcss -i ./input.css -o ./output.css --watch"
+  }
+}
+
