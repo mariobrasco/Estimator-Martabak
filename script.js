@@ -162,6 +162,7 @@
   function showMatrix(){
     try{ buildStateFromDOM(); } catch(e){ alert('Buat form dulu.'); return; }
     clearTerminal();
+    console.log("Show Matrix")
     log('📊 MATRIKS A (koefisien) — baris=bahan, kolom=produk:');
     log('═'.repeat(50));
     printMatrix(state.compMatrix);
@@ -172,8 +173,18 @@
 
   function formatNum(x){
     if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
+    console.log("format Num")
     return Number(x).toFixed(6);
   }
+
+    function formatInteger(x){
+    return String(Math.round(x));
+  }
+
+  function BuatNilaiMenjadiPositif(arr) {
+  return arr.map(v => Math.abs(v));
+}
+
 
   function printMatrix(mat){
     for(let i=0;i<mat.length;i++){
@@ -273,9 +284,11 @@
     let out = '';
     for(let i=0;i<n;i++){
       const name = state.productNames[i] || ('Martabak '+(i+1));
-      log(`📊 x${i+1} (${name}) = ${formatNum(sol[i])}`);
-      out += `${name}: ${formatNum(sol[i])} unit\n`;
-      if (sol[i] < -1e-9) negative = true;
+      const intValue = Math.round(sol[i]);
+      const positiveValue = Math.abs(intValue);
+      log(`📊 x${i+1} (${name}) = ${formatInteger(positiveValue)}`);
+      out += `${name}: ${formatInteger(positiveValue)} pcs\n`;
+      if (intValue < 0) negative = true;
     }
 
     if (negative){
