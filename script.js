@@ -50,7 +50,8 @@
       html += '<tr class="hover:bg-gray-50 transition-colors">';
       html += `<td class="px-4 py-3 border-b border-gray-100"><input class="pname w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none font-medium" data-i="${i}" type="text" placeholder="Nama Produk ${i+1}"></td>`;
       for(let j=0;j<m;j++){
-        html += `<td class="px-4 py-3 border-b border-gray-100"><input class="comp w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none font-medium" data-i="${i}" data-j="${j}" type="number" min="0" step="any"></td>`;
+        // html += `<td class="px-4 py-3 border-b border-gray-100 cursor-pointer"><input readonly class="comp w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none font-medium cursor-pointer" data-i="${i}" data-j="${j}" type="text" min="0" step="any"></td>`;
+        html += `<td class="px-4 py-3 border-b border-gray-100"><span class="comp block w-full px-3 py-2 font-medium" data-i="${i}" data-j="${j}"></span></td>`;
       }
       html += '</tr>';
     }
@@ -92,12 +93,24 @@
     // Generate random comps between 1 and 1000 for each product-ingredient cell
     const n = state.n || 0, m = state.m || 0;
     const compVals = Array.from({length:n}, ()=> Array(m).fill(0));
+
+     const predefinedComps = [
+        [50, 20, 30],
+        [65, 25, 10],
+        [55, 30, 15]
+    ];
+
     document.querySelectorAll('.comp').forEach(el=>{
       const i = parseInt(el.dataset.i), j = parseInt(el.dataset.j);
-      const v = Math.floor(Math.random()*1000) + 1; // 1..1000
-      el.value = v;
+      // Use predefined values if available, otherwise use 0
+      const v = (predefinedComps[i] && predefinedComps[i][j]) || 0;
+      el.textContent = v;
       compVals[i][j] = v;
+      console.log(`Set comp[${i}][${j}] = ${v}`);
     });
+
+  
+
 
     // For each ingredient, compute a logical stok based on total needed across products
     const unitList = ['gr','kg','ml','l','pcs'];
