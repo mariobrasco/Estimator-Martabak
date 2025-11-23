@@ -177,6 +177,7 @@
       log(`\n${'─'.repeat(60)}`);
       log(`🔄 PROSES KOLOM ${col+1}:`);
       
+      // Cari pivot terbesar (partial pivoting)
       let pivotRow = col;
       let maxVal = Math.abs(mat[col][col]);
       for(let r=col+1; r<n; r++){
@@ -189,17 +190,30 @@
         status.className = 'px-4 py-3 bg-red-50 rounded-xl text-red-600 font-medium border-2 border-red-200';
         break;
       }
+      
+      // OBE #1: PERTUKARAN BARIS
       if (pivotRow !== col){
         [mat[col], mat[pivotRow]] = [mat[pivotRow], mat[col]];
-        log(`\n🔀 Swap: R${col+1} ↔ R${pivotRow+1}`);
+        log(`\n📝 OBE #1 - PERTUKARAN BARIS:`);
+        log(`   Menukar baris ${col+1} dengan baris ${pivotRow+1}`);
+        log(`   Notasi: R${col+1} ↔ R${pivotRow+1}`);
+        log(`   Tujuan: Menempatkan pivot terbesar di posisi diagonal`);
         printAugmented(mat);
       }
+      
       const pivot = mat[col][col];
+      
+      // OBE #2: PERKALIAN BARIS DENGAN KONSTANTA
       if (Math.abs(pivot - 1) > EPS){
         for(let k=col; k<=n; k++) mat[col][k] = mat[col][k] / pivot;
-        log(`\n➗ Normalize: R${col+1} ← R${col+1} / ${formatNum(pivot)}`);
+        log(`\n📝 OBE #2 - PERKALIAN BARIS DENGAN KONSTANTA:`);
+        log(`   Membagi baris ${col+1} dengan konstanta ${formatNum(pivot)}`);
+        log(`   Notasi: R${col+1} ← R${col+1} / ${formatNum(pivot)}`);
+        log(`   Tujuan: Membuat pivot (elemen diagonal) = 1`);
         printAugmented(mat);
       }
+      
+      // OBE #3: MENAMBAHKAN KELIPATAN SUATU BARIS KE BARIS LAIN
       for(let r=0; r<n; r++){
         if (r === col) continue;
         const factor = mat[r][col];
@@ -207,7 +221,11 @@
         for(let k=col; k<=n; k++){
           mat[r][k] = mat[r][k] - factor * mat[col][k];
         }
-        log(`\n➖ R${r+1} ← R${r+1} - (${formatNum(factor)}) × R${col+1}`);
+        const multiplier = -factor;
+        log(`\n📝 OBE #3 - MENAMBAHKAN KELIPATAN BARIS KE BARIS LAIN:`);
+        log(`   Menambahkan ${formatNum(multiplier)} kali baris ${col+1} ke baris ${r+1}`);
+        log(`   Notasi: R${r+1} ← ${formatNum(multiplier)} × R${col+1} + R${r+1}`);
+        log(`   Tujuan: Membuat elemen di posisi [${r+1},${col+1}] = 0`);
         printAugmented(mat);
       }
     }
