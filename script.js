@@ -112,6 +112,7 @@
       html += `<input id="stok_${j}" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="0.01" placeholder="0.00">`;
       html += `<input type="hidden" id="unit_${j}" value="${unit}">`;
       html += `</td>`;
+
     }
     html += '</tr></tbody></table></div></div></div>';
 
@@ -223,7 +224,7 @@
   function showMatrix(){
     try{ buildStateFromDOM(); } catch(e){ alert('Buat form dulu.'); return; }
     clearTerminal();
-    log('📊 MATRIKS A (koefisien) — baris=bahan, kolom=premix:');
+    log('📊 MATRIKS A (koefisien) — baris=bahan, kolom=produk:');
     log('═'.repeat(50));
     printMatrix(state.compMatrix);
     log('\n🎯 VEKTOR TARGET B (dalam kg ekuivalen):');
