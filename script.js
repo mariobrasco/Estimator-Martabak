@@ -50,8 +50,8 @@
       html += '<tr class="hover:bg-gray-50 transition-colors">';
       html += `<td class="px-4 py-3 border-b border-gray-100"><input class="pname w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 outline-none font-medium" data-i="${i}" type="text" placeholder="Nama Produk ${i+1}"></td>`;
       for(let j=0;j<m;j++){
-        // html += `<td class="px-4 py-3 border-b border-gray-100 cursor-pointer"><input readonly class="comp w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none font-medium cursor-pointer" data-i="${i}" data-j="${j}" type="text" min="0" step="any"></td>`;
-        html += `<td class="px-4 py-3 border-b border-gray-100"><span class="comp block w-full px-3 py-2 font-medium" data-i="${i}" data-j="${j}"></span></td>`;
+        html += `<td class="px-4 py-3 border-b border-gray-100 cursor-pointer"><input readonly class="comp w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-purple-500 focus:ring-2 focus:ring-purple-100 outline-none font-medium cursor-none" data-i="${i}" data-j="${j}" type="text" min="0" step="any"></td>`;
+        // html += `<td class="px-4 py-3 border-b border-gray-100"><span class="comp block w-full px-3 py-2 font-medium" data-i="${i}" data-j="${j}"></span></td>`;
       }
       html += '</tr>';
     }
@@ -104,7 +104,7 @@
       const i = parseInt(el.dataset.i), j = parseInt(el.dataset.j);
       // Use predefined values if available, otherwise use 0
       const v = (predefinedComps[i] && predefinedComps[i][j]) || 0;
-      el.textContent = v;
+      el.value = v;
       compVals[i][j] = v;
       console.log(`Set comp[${i}][${j}] = ${v}`);
     });
@@ -305,15 +305,15 @@
       log(`📊 x${i+1} (${name}) = ${formatInteger(positiveValue)}`);
       }
       out += `${name}: ${formatInteger(positiveValue)} pcs\n`;
-      if (positiveValue < 0) negative = true;
+      if (intValue < 0) negative = true;
     }
 
     if (negative){
-      log('\n⚠️ PERHATIAN: Solusi mengandung nilai negatif!');
-      log('Periksa kembali komposisi dan stok yang diinput');
-      status.innerHTML = '<span class="text-red-600 font-semibold">⚠️ Solusi negatif</span>';
+      log('\n❗ Komposisi tidak valid !');
+      log('Perhitungan menghasilkan nilai negatif pada jumlah salah satu produk, \n yang berarti target bahan yang Anda masukkan tidak dapat dicapai dari ketiga menu dengan komposisi yang tersedia. Silakan:\n• periksa kembali target total bahan, \n• atau revisi komposisi masing-masing menu.');
+      status.innerHTML = '<span class="text-red-600 font-semibold">❗ Komposisi tidak valid </span>';
       status.className = 'px-4 py-3 bg-red-50 rounded-xl text-red-600 font-medium border-2 border-red-200';
-      resultArea.innerHTML = '<div class="text-red-600 font-semibold">⚠️ Solusi mengandung nilai negatif. Periksa input Anda.</div>';
+      resultArea.innerHTML = '<div class="text-red-600 font-semibold">Perhitungan menghasilkan nilai negatif pada jumlah salah satu produk,yang berarti target bahan yang Anda masukkan tidak dapat dicapai dari ketiga menu dengan komposisi yang tersedia. Silakan:<br>• periksa kembali target total bahan, <br>• atau revisi komposisi masing-masing menu.</div>';
     } else {
       log('\n✅ SUKSES! Solusi valid ditemukan');
       status.innerHTML = '<span class="text-green-600 font-semibold">✅ Sukses: solusi valid</span>';
