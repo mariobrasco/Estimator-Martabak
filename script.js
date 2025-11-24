@@ -70,7 +70,7 @@
     for(let j=0;j<m;j++){
       let opts = '';
       for(const u of units) opts += `<option value="${u}">${u}</option>`;
-      html += `<td class="px-4 py-3"><div class="flex gap-2"><input id="stok_${j}" class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="any"><select id="unit_stock_${j}" class="w-24 px-2 py-1 text-sm border rounded-md bg-white">${opts}</select></div></td>`;
+      html += `<td class="px-4 py-3"><div class="flex gap-2"><input id="stok_${j}" class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="any"><select id="unit_stock_${j}" class="text-emerald-500 w-24 px-2 py-1 text-sm border rounded-md bg-white">${opts}</select></div></td>`;
     }
     html += '</tr></tbody></table></div></div></div>';
 
@@ -122,7 +122,7 @@
     clearTerminal();
     log('✓ Contoh data acak berhasil diisi (komposisi: 1–1000).');
     log('→ Stok diatur berdasar total kebutuhan × faktor acak 1–5.');
-    status.innerHTML = '<span class="text-blue-600 font-semibold">✓ Contoh acak terisi</span>';
+    status.innerHTML = '<div class = "flex gap-2"><span> ✓ </span> <span class="text-blue-600 font-semibold"> Contoh acak terisi</span></div>';
     status.className = 'px-4 py-3 bg-blue-50 rounded-xl text-blue-600 font-medium border-2 border-blue-200';
   }
 
@@ -299,12 +299,12 @@
     if (negative){
       log('\n⚠️ PERHATIAN: Solusi mengandung nilai negatif!');
       log('Periksa kembali komposisi dan stok yang diinput');
-      status.innerHTML = '<span class="text-red-600 font-semibold">⚠️ Solusi negatif</span>';
+      status.innerHTML = '<div class = "flex gap-2"><span> ⚠️ </span> <span class="text-red-600 font-semibold"> Solusi negatif</span></div>';
       status.className = 'px-4 py-3 bg-red-50 rounded-xl text-red-600 font-medium border-2 border-red-200';
       resultArea.innerHTML = '<div class="text-red-600 font-semibold">⚠️ Solusi mengandung nilai negatif. Periksa input Anda.</div>';
     } else {
       log('\n✅ SUKSES! Solusi valid ditemukan');
-      status.innerHTML = '<span class="text-green-600 font-semibold">✅ Sukses: solusi valid</span>';
+      status.innerHTML = '<div class = "flex gap-2"><span> ✅ </span> <span class="text-green-600 font-semibold"> Sukses: solusi valid</span></div>';
       status.className = 'px-4 py-3 bg-green-50 rounded-xl text-green-600 font-medium border-2 border-green-200';
       resultArea.innerHTML = '<div class="text-green-600 font-semibold mb-3 text-lg">✅ Solusi Valid:</div><div class="text-gray-800 text-lg space-y-1 font-medium">' + out.replace(/\n/g, '<br>') + '</div>';
     }
