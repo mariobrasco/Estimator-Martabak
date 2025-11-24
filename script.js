@@ -408,10 +408,15 @@
       status.innerHTML = '<div class="flex gap-2"><span>✅</span><span class="text-green-600 font-semibold">Resep berhasil dihitung!</span></div>';
       status.className = 'px-4 py-3 bg-green-50 rounded-xl text-green-600 font-medium border-2 border-green-200';
       
+      // normalisasi ukuran font pada output (ganti kelas besar ke ukuran dasar)
+      const normalizedOut = out
+        .replace(/\btext-2xl\b/g, 'text-base')
+        .replace(/\btext-xl\b/g, 'text-base');
+
       resultArea.innerHTML = `
-        <div class="text-green-600 font-semibold mb-4 text-xl">✅ Resep Pencampuran Premix:</div>
-        <div class="space-y-1 mb-4">${out}</div>
-        <div class="bg-indigo-50 border-2 border-indigo-300 rounded-xl p-4 text-indigo-900">
+        <div class="text-green-600 font-semibold mb-4 text-base">✅ Resep Pencampuran Premix:</div>
+        <div class="space-y-1 mb-4 text-base">${normalizedOut}</div>
+        <div class="bg-indigo-50 border-2 border-indigo-300 rounded-xl p-4 text-indigo-900 text-base">
           <strong>📦 Total Adonan:</strong> ${formatNum(totalKg)} kg<br>
           <strong>📝 Instruksi:</strong> Campur semua premix di atas hingga rata, adonan siap digunakan!
         </div>
