@@ -30,7 +30,6 @@
 
     const units = ['gr','kg','ml','l','pcs'];
 
-
     let html = '<div class="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-6 shadow-xl border border-gray-200">';
     html += '<div class="flex items-center gap-3 mb-6">';
     html += '<div class="w-10 h-10 bg-linear-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-md">';
@@ -79,7 +78,7 @@
     clearTerminal();
     log('✓ Form input berhasil dibuat!');
     log('→ Silakan isi komposisi & stok, lalu klik "Jalankan OBE"');
-    status.innerHTML = '<div class = "flex gap-2"><span> ✓ </span> <span class="text-green-600 font-semibold"> Siap input</span></div>';
+    status.innerHTML = '<span class="text-green-600 font-semibold">✓ Siap input</span>';
     status.className = 'px-4 py-3 bg-green-50 rounded-xl text-green-600 font-medium border-2 border-green-200';
   }
 
@@ -174,13 +173,6 @@
     return Number(x).toFixed(4);
   }
 
-    function formatInteger(x){
-    return String(Math.round(x));
-  }
-
-  function BuatNilaiMenjadiPositif(arr) {
-  return arr.map(v => Math.abs(v));
-}
   function printMatrix(mat){
     for(let i=0;i<mat.length;i++){
       const row = mat[i].map(v=> formatNum(v).padStart(10)).join(' ');
@@ -218,6 +210,7 @@
       log(`\n${'─'.repeat(60)}`);
       log(`🔄 PROSES KOLOM ${col+1} (Premix ${state.productNames[col] || 'Mix '+(col+1)}):`);
       
+      // Cari pivot terbesar (partial pivoting)
       let pivotRow = col;
       let maxVal = Math.abs(mat[col][col]);
       for(let r=col+1; r<n; r++){
@@ -232,17 +225,30 @@
         resultArea.innerHTML = '<div class="text-red-600 font-semibold">❌ Sistem tidak dapat diselesaikan - Komposisi premix tidak valid.</div>';
         return;
       }
+      
+      // OBE #1: PERTUKARAN BARIS
       if (pivotRow !== col){
         [mat[col], mat[pivotRow]] = [mat[pivotRow], mat[col]];
-        log(`\n🔀 Swap: R${col+1} ↔ R${pivotRow+1}`);
+        log(`\n📝 OBE #1 - PERTUKARAN BARIS:`);
+        log(`   Menukar baris ${col+1} dengan baris ${pivotRow+1}`);
+        log(`   Notasi: R${col+1} ↔ R${pivotRow+1}`);
+        log(`   Tujuan: Menempatkan pivot terbesar di posisi diagonal`);
         printAugmented(mat);
       }
+      
       const pivot = mat[col][col];
+      
+      // OBE #2: PERKALIAN BARIS DENGAN KONSTANTA
       if (Math.abs(pivot - 1) > EPS){
         for(let k=col; k<=n; k++) mat[col][k] = mat[col][k] / pivot;
-        log(`\n➗ Normalize: R${col+1} ← R${col+1} / ${formatNum(pivot)}`);
+        log(`\n📝 OBE #2 - PERKALIAN BARIS DENGAN KONSTANTA:`);
+        log(`   Membagi baris ${col+1} dengan konstanta ${formatNum(pivot)}`);
+        log(`   Notasi: R${col+1} ← R${col+1} / ${formatNum(pivot)}`);
+        log(`   Tujuan: Membuat pivot (elemen diagonal) = 1`);
         printAugmented(mat);
       }
+      
+      // OBE #3: MENAMBAHKAN KELIPATAN SUATU BARIS KE BARIS LAIN
       for(let r=0; r<n; r++){
         if (r === col) continue;
         const factor = mat[r][col];
@@ -250,7 +256,11 @@
         for(let k=col; k<=n; k++){
           mat[r][k] = mat[r][k] - factor * mat[col][k];
         }
-        log(`\n➖ R${r+1} ← R${r+1} - (${formatNum(factor)}) × R${col+1}`);
+        const multiplier = -factor;
+        log(`\n📝 OBE #3 - MENAMBAHKAN KELIPATAN BARIS KE BARIS LAIN:`);
+        log(`   Menambahkan ${formatNum(multiplier)} kali baris ${col+1} ke baris ${r+1}`);
+        log(`   Notasi: R${r+1} ← ${formatNum(multiplier)} × R${col+1} + R${r+1}`);
+        log(`   Tujuan: Membuat elemen di posisi [${r+1},${col+1}] = 0`);
         printAugmented(mat);
       }
     }
