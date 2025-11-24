@@ -298,13 +298,9 @@
     for(let i=0;i<n;i++){
       const name = state.productNames[i] || ('Martabak '+(i+1));
       const intValue = Math.round(sol[i]);
-      const positiveValue = Math.abs(intValue);
-      if(intValue < 0){
-      log(`📊 x${i+1} (${name}) = ${formatInteger(positiveValue)} (aslinya ${formatInteger(intValue)})`);
-      } else{
-      log(`📊 x${i+1} (${name}) = ${formatInteger(positiveValue)}`);
-      }
-      out += `${name}: ${formatInteger(positiveValue)} pcs\n`;
+      // const positiveValue = Math.abs(intValue);
+      log(`📊 x${i+1} (${name}) = ${formatInteger(intValue)}`);
+      out += `${name}: ${formatInteger(intValue)} pcs\n`;
       if (intValue < 0) negative = true;
     }
 
