@@ -11,6 +11,25 @@
   document.getElementById('solveBtn').addEventListener('click', onSolve);
   document.getElementById('showMatrixBtn').addEventListener('click', showMatrix);
   document.getElementById('downloadCSV').addEventListener('click', downloadCSV);
+  
+  // Validasi ordo
+  document.getElementById('nProducts').addEventListener('input', validateOrdo);
+  document.getElementById('nIngredients').addEventListener('input', validateOrdo);
+  
+  function validateOrdo() {
+    const nProducts = parseInt($('nProducts').value) || 0;
+    const nIngredients = parseInt($('nIngredients').value) || 0;
+    const nProductsError = $('nProductsError');
+    const nIngredientsError = $('nIngredientsError');
+    
+    if (nProducts !== nIngredients && nProducts > 0 && nIngredients > 0) {
+      nProductsError.classList.remove('hidden');
+      nIngredientsError.classList.remove('hidden');
+    } else {
+      nProductsError.classList.add('hidden');
+      nIngredientsError.classList.add('hidden');
+    }
+  }
 
   let state = { n:3, m:3, ingredientNames:[], productNames:[], compMatrix: [], stock: [] };
 
@@ -23,26 +42,45 @@
   function buildTables(){
     const n = parseInt($('nProducts').value) || 0;
     const m = parseInt($('nIngredients').value) || 0;
+    
+    // Cek validasi ordo
+    if (n !== m) {
+      return; // Tidak melakukan apa-apa jika ordo tidak sama
+    }
+    
     const ingRaw = $('ingredientNames').value.trim();
-    const ingNames = ingRaw ? ingRaw.split(',').map(s=>s.trim()) : [];
+    const ingEntries = ingRaw ? ingRaw.split(',').map(s=>s.trim()) : [];
+    
+    // Parse nama bahan dan satuan (format: "Nama:satuan" atau hanya "Nama")
+    state.ingredientNames = [];
+    state.ingredientUnits = [];
+    for(let j=0; j<m; j++){
+      if (ingEntries[j]) {
+        const parts = ingEntries[j].split(':');
+        state.ingredientNames.push(parts[0].trim());
+        state.ingredientUnits.push(parts[1] ? parts[1].trim().toLowerCase() : 'kg');
+      } else {
+        state.ingredientNames.push('Bahan '+(j+1));
+        state.ingredientUnits.push('kg');
+      }
+    }
 
-    state.n = n; state.m = m; state.ingredientNames = ingNames.slice(0,m);
-
-    const units = ['gr','kg','ml','l','pcs'];
+    state.n = n; state.m = m;
 
     let html = '<div class="bg-white/80 backdrop-blur-sm rounded-3xl p-6 sm:p-8 mb-6 shadow-xl border border-gray-200">';
     html += '<div class="flex items-center gap-3 mb-6">';
     html += '<div class="w-10 h-10 bg-linear-to-br from-orange-500 to-red-600 rounded-xl flex items-center justify-center shadow-md">';
     html += '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>';
     html += '</div><h2 class="text-2xl font-bold text-gray-800">Komposisi Premix Adonan</h2></div>';
-    html += '<p class="text-gray-600 mb-4 text-sm">Masukkan komposisi setiap premix dalam <strong>desimal per 1 kg</strong> (misal: 0.60 = 60%)</p>';
+    html += '<p class="text-gray-600 mb-4 text-sm">Masukkan komposisi setiap premix dalam <strong>desimal per 1 kg/liter</strong> (misal: 0.60 = 60%)</p>';
     html += '<div class="overflow-x-auto rounded-xl border-2 border-gray-200">';
     html += '<table class="w-full">';
     html += '<thead class="bg-linear-to-br from-indigo-50 to-purple-50"><tr>';
     html += '<th class="px-4 py-4 text-left font-bold text-indigo-700 border-b-2 border-gray-200">Premix</th>';
     for(let j=0;j<m;j++){
       const b = state.ingredientNames[j] || ('Bahan '+(j+1));
-      html += `<th class="px-4 py-4 text-left font-bold text-purple-700 border-b-2 border-gray-200">${b} (%/kg)</th>`;
+      const unit = state.ingredientUnits[j] || 'kg';
+      html += `<th class="px-4 py-4 text-left font-bold text-purple-700 border-b-2 border-gray-200">${b} (%/${unit})</th>`;
     }
     html += '</tr></thead><tbody class="bg-white">';
     for(let i=0;i<n;i++){
@@ -58,19 +96,23 @@
     html += '<div class="mt-8"><div class="flex items-center gap-3 mb-4">';
     html += '<div class="w-10 h-10 bg-linear-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center shadow-md">';
     html += '<svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>';
-    html += '</div><h3 class="text-xl font-bold text-gray-800">Target Adonan Final (kg)</h3></div>';
-    html += '<p class="text-gray-600 mb-4 text-sm">Masukkan total bahan yang diinginkan dalam adonan akhir (dalam <strong>kilogram</strong>)</p>';
+    html += '</div><h3 class="text-xl font-bold text-gray-800">Target Adonan Final</h3></div>';
+    html += '<p class="text-gray-600 mb-4 text-sm">Masukkan total bahan yang diinginkan dalam adonan akhir</p>';
     html += '<div class="overflow-x-auto rounded-xl border-2 border-gray-200">';
     html += '<table class="w-full bg-white"><thead class="bg-linear-to-br from-emerald-50 to-teal-50"><tr>';
     for(let j=0;j<m;j++){
       const b = state.ingredientNames[j] || ('Bahan '+(j+1));
-      html += `<th class="px-4 py-4 text-left font-bold text-emerald-700 border-b-2 border-gray-200">${b} (kg)</th>`;
+      const unit = state.ingredientUnits[j] || 'kg';
+      html += `<th class="px-4 py-4 text-left font-bold text-emerald-700 border-b-2 border-gray-200">${b} (${unit})</th>`;
     }
     html += '</tr></thead><tbody><tr class="hover:bg-gray-50 transition-colors">';
     for(let j=0;j<m;j++){
-      let opts = '';
-      for(const u of units) opts += `<option value="${u}">${u}</option>`;
-      html += `<td class="px-4 py-3"><div class="flex gap-2"><input id="stok_${j}" class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="any"><select id="unit_stock_${j}" class="text-emerald-500 w-24 px-2 py-1 text-sm border rounded-md bg-white">${opts}</select></div></td>`;
+      const unit = state.ingredientUnits[j] || 'kg';
+      html += `<td class="px-4 py-3">`;
+      html += `<input id="stok_${j}" class="w-full px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="0.01" placeholder="0.00">`;
+      html += `<input type="hidden" id="unit_${j}" value="${unit}">`;
+      html += `</td>`;
+
     }
     html += '</tr></tbody></table></div></div></div>';
 
@@ -85,6 +127,14 @@
   }
 
   function fillExample(){
+    const n = parseInt($('nProducts').value) || 0;
+    const m = parseInt($('nIngredients').value) || 0;
+    
+    // Cek validasi ordo
+    if (n !== m) {
+      return; // Tidak melakukan apa-apa jika ordo tidak sama
+    }
+    
     buildTables();
     document.querySelectorAll('.pname').forEach((el, idx)=> 
       el.value = ['Mix A','Mix B','Mix C'][idx] || `Mix ${String.fromCharCode(65+idx)}`
@@ -139,6 +189,17 @@
     status.className = 'px-4 py-3 bg-gray-100 rounded-xl text-gray-600 mb-3 font-medium border border-gray-200';
   }
 
+  function convertToKg(value, unit) {
+    // Konversi semua satuan ke kg sebagai satuan standar
+    switch(unit) {
+      case 'gr': return value / 1000;
+      case 'l': return value; // 1 liter air = 1 kg
+      case 'ml': return value / 1000; // 1000 ml = 1 liter = 1 kg
+      case 'kg': return value;
+      default: return value;
+    }
+  }
+
   function buildStateFromDOM(){
     state.productNames = Array.from(document.querySelectorAll('.pname')).map(x=>x.value || 'Mix');
     const n = state.n, m = state.m;
@@ -150,9 +211,13 @@
     const compMatrix = Array.from({length:m}, (_,r)=> Array.from({length:n}, (_,c)=> compRowsByProduct[c][r] ));
     state.compMatrix = compMatrix;
     state.stock = [];
+    state.units = [];
     for(let j=0;j<m;j++){
       const v = parseFloat($(`stok_${j}`).value) || 0;
-      state.stock.push(v);
+      const unit = $(`unit_${j}`).value || 'kg';
+      state.units.push(unit);
+      // Konversi ke kg untuk perhitungan
+      state.stock.push(convertToKg(v, unit));
     }
   }
 
@@ -162,10 +227,11 @@
     log('📊 MATRIKS A (koefisien) — baris=bahan, kolom=produk:');
     log('═'.repeat(50));
     printMatrix(state.compMatrix);
-    log('\n🎯 VEKTOR TARGET B (kg):');
+    log('\n🎯 VEKTOR TARGET B (dalam kg ekuivalen):');
     log('═'.repeat(50));
     state.stock.forEach((v,i)=> {
       const bahanName = state.ingredientNames[i] || `Bahan ${i+1}`;
+      const originalUnit = state.units[i] || 'kg';
       log(`B[${i+1}] (${bahanName}) = ${formatNum(v)} kg`);
     });
   }
@@ -343,10 +409,15 @@
       status.innerHTML = '<div class="flex gap-2"><span>✅</span><span class="text-green-600 font-semibold">Resep berhasil dihitung!</span></div>';
       status.className = 'px-4 py-3 bg-green-50 rounded-xl text-green-600 font-medium border-2 border-green-200';
       
+      // normalisasi ukuran font pada output (ganti kelas besar ke ukuran dasar)
+      const normalizedOut = out
+        .replace(/\btext-2xl\b/g, 'text-base')
+        .replace(/\btext-xl\b/g, 'text-base');
+
       resultArea.innerHTML = `
-        <div class="text-green-600 font-semibold mb-4 text-xl">✅ Resep Pencampuran Premix:</div>
-        <div class="space-y-1 mb-4">${out}</div>
-        <div class="bg-indigo-50 border-2 border-indigo-300 rounded-xl p-4 text-indigo-900">
+        <div class="text-green-600 font-semibold mb-4 text-base">✅ Resep Pencampuran Premix:</div>
+        <div class="space-y-1 mb-4 text-base">${normalizedOut}</div>
+        <div class="bg-indigo-50 border-2 border-indigo-300 rounded-xl p-4 text-indigo-900 text-base">
           <strong>📦 Total Adonan:</strong> ${formatNum(totalKg)} kg<br>
           <strong>📝 Instruksi:</strong> Campur semua premix di atas hingga rata, adonan siap digunakan!
         </div>
