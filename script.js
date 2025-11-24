@@ -519,6 +519,7 @@
       out += `<span class="font-semibold text-gray-700">${name}</span>`;
       out += `<span class="text-2xl font-bold text-indigo-600">${formatInteger(val)} kg</span>`;
       out += `</div>`;
+
     }
 
     if (negative){
