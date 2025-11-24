@@ -480,12 +480,6 @@
     border-bottom-style: var(--tw-border-style);
     border-bottom-width: 2px;
   }
-  .border-\[rgba\(0\,0\,0\,0\.2\)\] {
-    border-color: rgba(0,0,0,0.2);
-  }
-  .border-\[rgba\(0\,0\,0\,0\.4\)\] {
-    border-color: rgba(0,0,0,0.4);
-  }
   .border-amber-200 {
     border-color: var(--color-amber-200);
   }
