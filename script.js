@@ -70,8 +70,7 @@
     for(let j=0;j<m;j++){
       let opts = '';
       for(const u of units) opts += `<option value="${u}">${u}</option>`;
-
-      html += `<td class="px-4 py-3"><div class="flex gap-2"><input id="stok_${j}" class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="any"><select id="unit_stock_${j}" class="w-24 px-2 py-1 text-sm border rounded-md bg-white text-emerald-500">${opts}</select></div></td>`;
+      html += `<td class="px-4 py-3"><div class="flex gap-2"><input id="stok_${j}" class="flex-1 px-3 py-2 border-2 border-gray-200 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 outline-none font-medium" type="number" min="0" step="any"><select id="unit_stock_${j}" class="w-24 px-2 py-1 text-sm border rounded-md bg-white">${opts}</select></div></td>`;
     }
     html += '</tr></tbody></table></div></div></div>';
 
@@ -81,7 +80,7 @@
     clearTerminal();
     log('✓ Form input berhasil dibuat!');
     log('→ Silakan isi komposisi & stok, lalu klik "Jalankan OBE"');
-    status.innerHTML = '<div class = "flex gap-2"><span> ✓ </span> <span class="text-green-600 font-semibold"> Siap input</span></div>';ain
+    status.innerHTML = '<span class="text-green-600 font-semibold">✓ Siap input</span>';
     status.className = 'px-4 py-3 bg-green-50 rounded-xl text-green-600 font-medium border-2 border-green-200';
   }
 
@@ -123,7 +122,7 @@
     clearTerminal();
     log('✓ Contoh data acak berhasil diisi (komposisi: 1–1000).');
     log('→ Stok diatur berdasar total kebutuhan × faktor acak 1–5.');
-    status.innerHTML = '<div class = "flex gap-2"><span> ✓ </span> <span class="text-blue-600 font-semibold"> Contoh acak terisi</span></div>';main
+    status.innerHTML = '<span class="text-blue-600 font-semibold">✓ Contoh acak terisi</span>';
     status.className = 'px-4 py-3 bg-blue-50 rounded-xl text-blue-600 font-medium border-2 border-blue-200';
   }
 
@@ -163,7 +162,6 @@
   function showMatrix(){
     try{ buildStateFromDOM(); } catch(e){ alert('Buat form dulu.'); return; }
     clearTerminal();
-    console.log("Show Matrix")
     log('📊 MATRIKS A (koefisien) — baris=bahan, kolom=produk:');
     log('═'.repeat(50));
     printMatrix(state.compMatrix);
@@ -174,17 +172,9 @@
 
   function formatNum(x){
     if (Math.abs(x - Math.round(x)) < 1e-9) return String(Math.round(x));
-    console.log("format Num")
     return Number(x).toFixed(6);
   }
 
-    function formatInteger(x){
-    return String(Math.round(x));
-  }
-
-  function BuatNilaiMenjadiPositif(arr) {
-  return arr.map(v => Math.abs(v));
-}
   function printMatrix(mat){
     for(let i=0;i<mat.length;i++){
       const row = mat[i].map(v=> formatNum(v).padStart(10)).join(' ');
@@ -220,6 +210,7 @@
       log(`\n${'─'.repeat(60)}`);
       log(`🔄 PROSES KOLOM ${col+1}:`);
       
+      // Cari pivot terbesar (partial pivoting)
       let pivotRow = col;
       let maxVal = Math.abs(mat[col][col]);
       for(let r=col+1; r<n; r++){
@@ -232,18 +223,30 @@
         status.className = 'px-4 py-3 bg-red-50 rounded-xl text-red-600 font-medium border-2 border-red-200';
         break;
       }
+      
+      // OBE #1: PERTUKARAN BARIS
       if (pivotRow !== col){
         [mat[col], mat[pivotRow]] = [mat[pivotRow], mat[col]];
-        log(`\n🔀 Swap: R${col+1} ↔ R${pivotRow+1}`);
+        log(`\n📝 OBE #1 - PERTUKARAN BARIS:`);
+        log(`   Menukar baris ${col+1} dengan baris ${pivotRow+1}`);
+        log(`   Notasi: R${col+1} ↔ R${pivotRow+1}`);
+        log(`   Tujuan: Menempatkan pivot terbesar di posisi diagonal`);
         printAugmented(mat);
       }
+      
       const pivot = mat[col][col];
+      
+      // OBE #2: PERKALIAN BARIS DENGAN KONSTANTA
       if (Math.abs(pivot - 1) > EPS){
         for(let k=col; k<=n; k++) mat[col][k] = mat[col][k] / pivot;
-        log(`\n➗ Normalize: R${col+1} ← R${col+1} / ${formatNum(pivot)}`);
+        log(`\n📝 OBE #2 - PERKALIAN BARIS DENGAN KONSTANTA:`);
+        log(`   Membagi baris ${col+1} dengan konstanta ${formatNum(pivot)}`);
+        log(`   Notasi: R${col+1} ← R${col+1} / ${formatNum(pivot)}`);
+        log(`   Tujuan: Membuat pivot (elemen diagonal) = 1`);
         printAugmented(mat);
       }
-
+      
+      // OBE #3: MENAMBAHKAN KELIPATAN SUATU BARIS KE BARIS LAIN
       for(let r=0; r<n; r++){
         if (r === col) continue;
         const factor = mat[r][col];
@@ -251,7 +254,11 @@
         for(let k=col; k<=n; k++){
           mat[r][k] = mat[r][k] - factor * mat[col][k];
         }
-        log(`\n➖ R${r+1} ← R${r+1} - (${formatNum(factor)}) × R${col+1}`);
+        const multiplier = -factor;
+        log(`\n📝 OBE #3 - MENAMBAHKAN KELIPATAN BARIS KE BARIS LAIN:`);
+        log(`   Menambahkan ${formatNum(multiplier)} kali baris ${col+1} ke baris ${r+1}`);
+        log(`   Notasi: R${r+1} ← ${formatNum(multiplier)} × R${col+1} + R${r+1}`);
+        log(`   Tujuan: Membuat elemen di posisi [${r+1},${col+1}] = 0`);
         printAugmented(mat);
       }
     }
@@ -284,26 +291,20 @@
     let out = '';
     for(let i=0;i<n;i++){
       const name = state.productNames[i] || ('Martabak '+(i+1));
-      const intValue = Math.round(sol[i]);
-      const positiveValue = Math.abs(intValue);
-      if(intValue < 0){
-      log(`📊 x${i+1} (${name}) = ${formatInteger(positiveValue)} (aslinya ${formatInteger(intValue)})`);
-      } else{
-      log(`📊 x${i+1} (${name}) = ${formatInteger(positiveValue)}`);
-      }
-      out += `${name}: ${formatInteger(positiveValue)} pcs\n`;
-      if (positiveValue < 0) negative = true;
+      log(`📊 x${i+1} (${name}) = ${formatNum(sol[i])}`);
+      out += `${name}: ${formatNum(sol[i])} unit\n`;
+      if (sol[i] < -1e-9) negative = true;
     }
 
     if (negative){
       log('\n⚠️ PERHATIAN: Solusi mengandung nilai negatif!');
       log('Periksa kembali komposisi dan stok yang diinput');
-      status.innerHTML = '<div class = "flex gap-2"><span> ⚠️ </span> <span class="text-red-600 font-semibold"> Solusi negatif</span></div>';
+      status.innerHTML = '<span class="text-red-600 font-semibold">⚠️ Solusi negatif</span>';
       status.className = 'px-4 py-3 bg-red-50 rounded-xl text-red-600 font-medium border-2 border-red-200';
       resultArea.innerHTML = '<div class="text-red-600 font-semibold">⚠️ Solusi mengandung nilai negatif. Periksa input Anda.</div>';
     } else {
       log('\n✅ SUKSES! Solusi valid ditemukan');
-      status.innerHTML = '<div class = "flex gap-2"><span> ✅ </span> <span class="text-green-600 font-semibold"> Sukses: solusi valid</span></div>';
+      status.innerHTML = '<span class="text-green-600 font-semibold">✅ Sukses: solusi valid</span>';
       status.className = 'px-4 py-3 bg-green-50 rounded-xl text-green-600 font-medium border-2 border-green-200';
       resultArea.innerHTML = '<div class="text-green-600 font-semibold mb-3 text-lg">✅ Solusi Valid:</div><div class="text-gray-800 text-lg space-y-1 font-medium">' + out.replace(/\n/g, '<br>') + '</div>';
     }
